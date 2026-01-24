@@ -1,0 +1,38 @@
+name: Ingest External Events to D1
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run monthly on the 1st at 06:00 UTC
+    - cron: "0 6 1 * *"
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Upsert external events to D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_DB_NAME: ${{ secrets.D1_DB_NAME }}
+          EVENTS_URL: "https://www.gbuwh.co.uk/events"
+          TIMEZONE: "Europe/London"
+        run: python scripts/upsert_external_events_to_d1.py
