@@ -66,7 +66,9 @@ def generate_upsert_sql(events: list[dict]) -> str:
 
         sql = f"""INSERT INTO external_events (
     id, source, source_event_id, title, description, location,
-    starts_at_utc, ends_at_utc, timezone, url, updated_at, created_at
+    starts_at_utc, ends_at_utc, timezone, url,
+    visibility, origin, created_by_person_id, updated_by_person_id,
+    updated_at, created_at
 ) VALUES (
     {escape_sql_string(event_id)},
     {escape_sql_string(event['source'])},
@@ -78,6 +80,10 @@ def generate_upsert_sql(events: list[dict]) -> str:
     {escape_sql_string(event['ends_at_utc'])},
     {escape_sql_string(event['timezone'])},
     {escape_sql_string(event['url'])},
+    'public',
+    'import',
+    NULL,
+    NULL,
     {escape_sql_string(now)},
     {escape_sql_string(now)}
 )
