@@ -1,0 +1,28 @@
+name: Check Member Awards
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+
+jobs:
+  check-awards:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger awards check
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST https://wwuwh.com/api/cron/awards \
+            -H "X-Cron-Secret: ${{ secrets.WWUWH_CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Status: $http_code"
+
+          if [ "$http_code" != "200" ]; then
+            echo "Awards check failed with status $http_code"
+            exit 1
+          fi
