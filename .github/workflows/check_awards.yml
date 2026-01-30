@@ -3,8 +3,6 @@ name: Check Member Awards
 on:
   workflow_dispatch:
   schedule:
-    # Run daily at 06:00 UTC
-    - cron: "0 6 * * *"
 
 jobs:
   check-awards:
